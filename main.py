@@ -16,7 +16,7 @@ import loadimg
 class MainUi(QtWidgets.QMainWindow):
 	def __init__(self):
 		QtWidgets.QMainWindow.__init__(self)
-		uic.loadUi('./main.ui', self)
+		uic.loadUi('./ui/main.ui', self)
 		self.iniGuiEvent()
 		self.setupmodel()
 
@@ -46,15 +46,14 @@ class MainUi(QtWidgets.QMainWindow):
 
 		self.model.add(layers.Flatten())  # 2*2*512
 		self.model.add(layers.Dense(4096, activation='relu'))
-		self.model.add(layers.Dropout(0.5))
 		self.model.add(layers.Dense(4096, activation='relu'))
-		self.model.add(layers.Dropout(0.5))
 		self.model.add(layers.Dense(10, activation='softmax'))
 
 	def iniGuiEvent(self):# connect all button to all event slot
 		self.pushButton_showImg.clicked.connect(self.pushButton_showImg_onClick)
 		self.pushButton_ShowPara.clicked.connect(self.pushButton_ShowPara_onClick)
 		self.pushButton_ShowStruct.clicked.connect(self.pushButton_ShowStruct_onClick)
+		self.pushButton_ShowAcc.clicked.connect(self.pushButton_ShowAcc_onClick)
 
 
 	#5.1 show data image
@@ -84,7 +83,7 @@ class MainUi(QtWidgets.QMainWindow):
 	#5.2 show hyperparameter structure
 	@QtCore.pyqtSlot()
 	def pushButton_ShowPara_onClick(self):
-		batchsize = 100
+		batchsize = 32
 		learningrate = 0.001
 		adma = tf.keras.optimizers.Adam(learning_rate=learningrate)
 		self.model.compile(optimizer='adam',
@@ -101,6 +100,13 @@ class MainUi(QtWidgets.QMainWindow):
 	def pushButton_ShowStruct_onClick(self):
 		self.model.summary()
 
+	#5.4 show train history
+	@QtCore.pyqtSlot()
+	def pushButton_ShowAcc_onClick(self):
+		acc = cv2.imread('./img/acc.png')
+		cv2.imshow('Accuracy',acc)
+		loss = cv2.imread('./img/loss.png')
+		cv2.imshow('Loss',loss)
 
 if __name__ == "__main__": #main function
 	def run_app():

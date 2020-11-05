@@ -6,7 +6,7 @@ import numpy as np
 class AnotherWindow(QtWidgets.QWidget):
     def __init__(self,imglist,labellist):
         super().__init__()
-        uic.loadUi('./labelandimg.ui', self)
+        uic.loadUi('./ui/labelandimg.ui', self)
 
         category = ['airplane','automobile','bird','cat','deer','dog','frog','horse','sheep','truck'] # label to name
         qtimglabellist = [self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7,self.label_8,self.label_9,self.label_10]
