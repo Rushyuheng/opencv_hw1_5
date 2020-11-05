@@ -8,7 +8,7 @@ class AnotherWindow(QtWidgets.QWidget):
         super().__init__()
         uic.loadUi('./ui/labelandimg.ui', self)
 
-        category = ['airplane','automobile','bird','cat','deer','dog','frog','horse','sheep','truck'] # label to name
+        category = ['airplane','automobile','bird','cat','deer','dog','frog','horse','ship','truck'] # label to name
         qtimglabellist = [self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7,self.label_8,self.label_9,self.label_10]
         qtlabellist = [self.label_11,self.label_12,self.label_13,self.label_14,self.label_15,self.label_16,self.label_17,self.label_18,self.label_19,self.label_20]
 

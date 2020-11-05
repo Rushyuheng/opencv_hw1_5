@@ -21,40 +21,14 @@ class MainUi(QtWidgets.QMainWindow):
 		self.setupmodel()
 
 	def setupmodel(self):
-		self.model = models.Sequential()
-		self.model.add(layers.Conv2D(64, (3, 3), activation='relu', padding='same', input_shape=(32, 32, 3)))
-		self.model.add(layers.Conv2D(64, (3, 3), activation='relu', padding='same'))
-		self.model.add(layers.MaxPooling2D((2, 2)))
-
-		self.model.add(layers.Conv2D(128, (3, 3), activation='relu', padding='same'))
-		self.model.add(layers.Conv2D(128, (3, 3), activation='relu', padding='same'))
-		self.model.add(layers.MaxPooling2D((2, 2)))
-
-		self.model.add(layers.Conv2D(256, (3, 3), activation='relu', padding='same'))
-		self.model.add(layers.Conv2D(256, (3, 3), activation='relu', padding='same'))
-		self.model.add(layers.Conv2D(256, (3, 3), activation='relu', padding='same'))
-		self.model.add(layers.MaxPooling2D((2, 2)))
-
-		self.model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same'))
-		self.model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same'))
-		self.model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same'))
-		self.model.add(layers.MaxPooling2D((2, 2)))
-
-		self.model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same'))
-		self.model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same'))
-		self.model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same'))
-
-		self.model.add(layers.Flatten())  # 2*2*512
-		self.model.add(layers.Dense(4096, activation='relu'))
-		self.model.add(layers.Dense(4096, activation='relu'))
-		self.model.add(layers.Dense(10, activation='softmax'))
+		self.model = models.load_model('my_model.h5')
 
 	def iniGuiEvent(self):# connect all button to all event slot
 		self.pushButton_showImg.clicked.connect(self.pushButton_showImg_onClick)
 		self.pushButton_ShowPara.clicked.connect(self.pushButton_ShowPara_onClick)
 		self.pushButton_ShowStruct.clicked.connect(self.pushButton_ShowStruct_onClick)
 		self.pushButton_ShowAcc.clicked.connect(self.pushButton_ShowAcc_onClick)
-
+		self.pushButton_Test.clicked.connect(self.pushButton_Test_onClick)
 
 	#5.1 show data image
 	@QtCore.pyqtSlot()
@@ -85,14 +59,10 @@ class MainUi(QtWidgets.QMainWindow):
 	def pushButton_ShowPara_onClick(self):
 		batchsize = 32
 		learningrate = 0.001
-		adma = tf.keras.optimizers.Adam(learning_rate=learningrate)
-		self.model.compile(optimizer='adam',
-              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-              metrics=['accuracy'])
 		print('hyperparameter:')
 		print('batchsize: %d' %batchsize)
 		print('learning rate: %.3f' %learningrate)
-		print('optimizer: Adam')
+		print('optimizer: SGD')
 
 
 	#5.3 show model structure
@@ -107,6 +77,23 @@ class MainUi(QtWidgets.QMainWindow):
 		cv2.imshow('Accuracy',acc)
 		loss = cv2.imread('./img/loss.png')
 		cv2.imshow('Loss',loss)
+
+	#5.5 test
+	@QtCore.pyqtSlot()
+	def pushButton_Test_onClick(self):
+		testbatch = ld.load_data_set('./cifar-10-python/cifar-10-batches-py/test_batch')
+		index = int(self.ImgIndex.text())
+		img = np.transpose(np.reshape(testbatch[b'data'][index],(3,32,32)), (1,2,0))
+		img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+
+		#show test img
+		res = cv2.resize(img, dsize=(128, 128), interpolation = cv2.INTER_CUBIC)
+		cv2.imshow('test image',res)
+
+		img = np.expand_dims(img, axis=0)
+		predictions = self.model.predict(img.astype('float64'))
+		category = ['airplane','automobile','bird','cat','deer','dog','frog','horse','ship','truck'] # label to name
+		print(category[np.argmax(predictions)])
 
 if __name__ == "__main__": #main function
 	def run_app():
