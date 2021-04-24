@@ -7,6 +7,9 @@ import random
 import tensorflow as tf
 from tensorflow.keras import datasets, layers, models
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Qt5Agg')
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 #self define module
 import loaddataset as ld
@@ -81,19 +84,22 @@ class MainUi(QtWidgets.QMainWindow):
 	#5.5 test
 	@QtCore.pyqtSlot()
 	def pushButton_Test_onClick(self):
+		plt.close('all')
 		testbatch = ld.load_data_set('./cifar-10-python/cifar-10-batches-py/test_batch')
 		index = int(self.ImgIndex.text())
 		img = np.transpose(np.reshape(testbatch[b'data'][index],(3,32,32)), (1,2,0))
-		img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+		simg = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
 		#show test img
-		res = cv2.resize(img, dsize=(128, 128), interpolation = cv2.INTER_CUBIC)
+		res = cv2.resize(simg, dsize=(128, 128), interpolation = cv2.INTER_CUBIC)
 		cv2.imshow('test image',res)
 
 		img = np.expand_dims(img, axis=0)
-		predictions = self.model.predict(img.astype('float64'))
+		predictions = self.model.predict(img.astype('float16'))
 		category = ['airplane','automobile','bird','cat','deer','dog','frog','horse','ship','truck'] # label to name
-		print(category[np.argmax(predictions)])
+		plt.bar(category,predictions[0])
+		plt.show()
+		
 
 if __name__ == "__main__": #main function
 	def run_app():
